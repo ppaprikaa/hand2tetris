@@ -1,0 +1,59 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/1/Mux8Way16.hdl
+/**
+ * 8-way 16-bit multiplexor:
+ * out = a if sel = 000
+ *       b if sel = 001
+ *       c if sel = 010
+ *       d if sel = 011
+ *       e if sel = 100
+ *       f if sel = 101
+ *       g if sel = 110
+ *       h if sel = 111
+ */
+CHIP Mux8Way16 {
+    IN a[16], b[16], c[16], d[16],
+       e[16], f[16], g[16], h[16],
+       sel[3];
+    OUT out[16];
+
+    PARTS:
+	Not(in=sel[0], out=notsel0);
+	Not(in=sel[1], out=notsel1);
+	Not(in=sel[2], out=notsel2);
+
+	And(a=notsel2, b=notsel1, out=ns2ans1);
+	And(a=notsel2, b=sel[1], out=ns2as1);
+	And(a=sel[2], b=notsel1, out=s2ans1);
+	And(a=sel[2], b=sel[1], out=s2as1);
+
+	And(a=ns2ans1, b=notsel0, out=sa);
+	And(a=ns2ans1, b=sel[0], out=sb);
+	And(a=ns2as1, b=notsel0, out=sc);
+	And(a=ns2as1, b=sel[0], out=sd);
+	And(a=s2ans1, b=notsel0, out=se);
+	And(a=s2ans1, b=sel[0], out=sf);
+	And(a=s2as1, b=notsel0, out=sg);
+	And(a=s2as1, b=sel[0], out=sh);
+
+	And16to1(a=a, b=sa, out=outa);
+	And16to1(a=b, b=sb, out=outb);
+	And16to1(a=c, b=sc, out=outc);
+	And16to1(a=d, b=sd, out=outd);
+	And16to1(a=e, b=se, out=oute);
+	And16to1(a=f, b=sf, out=outf);
+	And16to1(a=g, b=sg, out=outg);
+	And16to1(a=h, b=sh, out=outh);
+
+	Or16(a=outa, b=outb, out=outab);
+	Or16(a=outc, b=outd, out=outcd);
+	Or16(a=oute, b=outf, out=outef);
+	Or16(a=outg, b=outh, out=outgh);
+
+	Or16(a=outab, b=outcd, out=outabcd);
+	Or16(a=outef, b=outgh, out=outefgh);
+
+	Or16(a=outabcd, b=outefgh, out=out);
+}
